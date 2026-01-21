@@ -7,21 +7,22 @@ import os
 # Configure the model 
 gemini_api_key = os.getenv('GOOGLE_API_KEY1')
 genai.configure(api_key=gemini_api_key)
-model= genai.GenerativeModel('gemini-2.5-flash-lite')
+model= genai.GenerativeModel('gemini-2.5-flash')
 
 # Lets create sidebar for image upload
 st.sidebar.title(''':red[Upload the Image's of Here:]''')
-uploaded_image = st.sidebar.file_uploader('Image',type=['jpeg','jpg','png','jfif'])
+uploaded_image = st.sidebar.file_uploader('Image',type=['jpeg','jpg','png','jfif'],accept_multiple_files=True)
+
+uploaded_image = [Image.open(img) for img in uploaded_image]
 
 if uploaded_image:
-    uploaded_image = Image.open(uploaded_image)
     st.sidebar.success('Image has been loaded succesfully')
     st.sidebar.subheader(':blue[Uploaded Image]')
     st.sidebar.image(uploaded_image)
 
 # Lets Create a Main page
 
-st.title(':red[CrackSense:-] :blue[Intelligent Structural Defect Detection Using AI]')
+st.title(':red[SafeFrame AI:-] :blue[Intelligent Structural Defect Detection Using AI]')
 st.markdown('#### :green[This Application takes the images of the structural defect from the construction site and prepare the AI Assisted report.]')
 title = st.text_input('Enter the Title of the report')
 name = st.text_input('Enter the name of the person who has prepared the report')
@@ -57,16 +58,17 @@ if st.button('SUBMIT'):
             * Make the report look attractive.
             '''
         
-        response = model.generate_content([prompt,uploaded_image],
+        response = model.generate_content([prompt,*uploaded_image],
                                           generation_config={'temperature':0.9})
         
 
         st.write(response.text)
 
-        if st.download_button(
-            label='Click To Download',
-            data=response.text,
-            file_name='structural_defect_report.txt',
-            mime= 'text/plain'
+
+    if st.download_button(
+        label='Click To Download',
+        data=response.text,
+        file_name='structural_defect_report.txt',
+        mime= 'text/plain'
         ):
-            st.success('Your file is downloaded')
+        st.success('Your file is downloaded')
